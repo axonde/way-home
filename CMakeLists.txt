@@ -21,4 +21,4 @@ FetchContent_MakeAvailable(json)
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 
-add_subdirectory(bin)
+add_subdirectory(src)

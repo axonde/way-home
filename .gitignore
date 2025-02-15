@@ -33,6 +33,7 @@
 
 # `build` folder
 build/
+temp/
 
 # VSCode
 .vscode/
