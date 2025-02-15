@@ -21,3 +21,22 @@ void Warnings::ErrorWhileParsingConfig() {
 void Warnings::ErrorAbnormal() {
     std::cerr << "Happened a abnormal error. Can't help you, maybe retry?\n";
 }
+void Warnings::ErrorBadConfig() {
+    std::cerr << "Your config is ill. Please delete or override it.\n";
+}
+void Warnings::ErrorFewArgs() {
+    std::cerr << "Very few arguments.. catastrophically little. So, goodbye.\n";
+}
+
+std::string Errors::CantOpenFile::what() const {
+    return "Can't open the file( or can, but don't want.";
+}
+std::string Errors::BadJson::what() const {
+    return "Your JSON is ill-formatted. Please cure him (or retry with overriding)!";
+}
+std::string Errors::ErrorParseJson::what() const {
+    return "An error occured while i parsed the JSON file.. How you feel now?";
+}
+std::string Errors::ErrorInvalidDate::what() const {
+    return "Date format is strict YYYY-MM-DD.";
+}
