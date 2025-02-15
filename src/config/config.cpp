@@ -5,7 +5,7 @@ Config::Config(const std::string& date) : date_(date) {
         throw Errors::ErrorInvalidDate();
     }
 
-    std::fstream config_file{config_name_, config_file.in};
+    std::fstream config_file(config_name_, config_file.in);
     try {
         if (!config_file.is_open()) {
             Warnings::HintFirstCreateConfigFile();
@@ -37,10 +37,10 @@ Config::Config(const std::string& date) : date_(date) {
 }
 
 void Config::CreateConfigFile() {
-    std::fstream config_file{config_name_, config_file.out};
+    std::fstream config_file(config_name_, config_file.out);
     
     if (!config_file.is_open()) {
-        throw Errors::CantOpenFile{};
+        throw Errors::CantOpenFile();
     }
 
     std::map<std::string, std::string> data;
@@ -52,7 +52,7 @@ void Config::CreateConfigFile() {
     std::cout << "Enter the api key from Yandex Raspisanie: ";
     std::cin >> data["api"];
 
-    json data_json{data};
+    json data_json(data);
     config_file << std::setw(2) << data_json;
 }
 
