@@ -40,3 +40,6 @@ std::string Errors::ErrorParseJson::what() const {
 std::string Errors::ErrorInvalidDate::what() const {
     return "Date format is strict YYYY-MM-DD.";
 }
+std::string Errors::ErrorRequestBadStatus::what() const {
+    return "Unforunately, the API return a very bad word. It's unbearable.";
+}

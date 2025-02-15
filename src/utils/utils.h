@@ -25,15 +25,18 @@ namespace Errors {
     };
 
     struct CantOpenFile : public Error {
-        virtual std::string what() const override;
+        std::string what() const override;
     };
     struct BadJson : public Error {
-        virtual std::string what() const override;
+        std::string what() const override;
     };
     struct ErrorParseJson : public Error {
-        virtual std::string what() const override;
+        std::string what() const override;
     };
     struct ErrorInvalidDate : public Error {
-        virtual std::string what() const override;
+        std::string what() const override;
+    };
+    struct ErrorRequestBadStatus : public Error {
+        std::string what() const override;
     };
 }
