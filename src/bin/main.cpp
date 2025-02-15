@@ -1,15 +1,16 @@
 #include <iostream>
-#include <cpr/cpr.h>
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
+#include <fstream>
+#include <config/config.h>
+#include <utils/utils.h>
 
 int main() {
-    cpr::Response r = cpr::Get(cpr::Url{"https://api.agify.io"}, cpr::Parameters{{"name", "Artyom"}});
-    std::cout << "Status " << r.status_code << '\n';
-    std::cout << "Response:\n" << r.text << '\n';
-    json j = json::parse(r.text);
-    std::cout << std::setw(2) << j << '\n';
-    std::cout << "Looks good.\n";
+
+    try {
+        Config config;
+    } catch (...) {
+        return 1;
+    }
+
+
     return 0;
 }
