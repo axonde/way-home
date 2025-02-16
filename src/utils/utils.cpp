@@ -14,6 +14,9 @@ void Warnings::HintCorrectnessCityNaming() {
 void Warnings::HintFirstCreateConfigFile() {
     std::cout << "Please provide some information about your trip.\n";
 }
+void Warnings::HintNotFoundWays() {
+    std::cout << "We have not found any way, however we have found another gem in this universe - you!\n";
+}
 
 void Warnings::ErrorWhileParsingConfig() {
     std::cerr << "Error while parsing config file. Please make sure that the program have privileges for creating and reading the `wayhome-config.json` file.\n";
@@ -26,6 +29,9 @@ void Warnings::ErrorBadConfig() {
 }
 void Warnings::ErrorFewArgs() {
     std::cerr << "Very few arguments.. catastrophically little. So, goodbye.\n";
+}
+void Warnings::ErrorWhileFindRoutes() {
+    std::cerr << "An error happened when i try to found routes. To be honest, it's the worst and simplest error that you can call.\n";
 }
 
 std::string Errors::CantOpenFile::what() const {

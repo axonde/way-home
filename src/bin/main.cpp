@@ -28,8 +28,22 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    
+    const std::list<std::string>* itineraries;
+    try {
+        itineraries = &finder.Find();
+    } catch (...) {
+        Warnings::ErrorWhileFindRoutes();
+        return 1;
+    }
+    if (!itineraries || itineraries->empty()) {
+        Warnings::HintNotFoundWays();
+        return 0;
+    }
 
+    std::cout << std::endl;
+    for (const auto& way : *itineraries) {
+        std::cout << way << '\n';
+    }
 
     return 0;
 }

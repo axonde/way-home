@@ -41,6 +41,7 @@ std::map<std::string, std::string> Config::GetParameters() const {
         {"apikey", api_key_},
         {"from", from_},
         {"to", to_},
+        {"date", date_}
     };
 }
 

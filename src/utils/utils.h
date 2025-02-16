@@ -11,11 +11,13 @@ namespace Warnings {
 
     void HintCorrectnessCityNaming();
     void HintFirstCreateConfigFile();
+    void HintNotFoundWays();
 
     void ErrorWhileParsingConfig();
     void ErrorAbnormal();
     void ErrorBadConfig();
     void ErrorFewArgs();
+    void ErrorWhileFindRoutes();
 }
 
 namespace Errors {
