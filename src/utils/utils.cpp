@@ -41,5 +41,11 @@ std::string Errors::ErrorInvalidDate::what() const {
     return "Date format is strict YYYY-MM-DD.";
 }
 std::string Errors::ErrorRequestBadStatus::what() const {
-    return "Unforunately, the API return a very bad word. It's unbearable.";
+    return "Unforunately, the API return a very bad word. Status code: " + std::to_string(status_code_);
+}
+std::string Errors::ErrorApiCode::what() const {
+    return "Yandex API haven't indexed your city yet. Hahah.. ha.. :0";
+}
+std::string Errors::ErrorApiCityNotFound::what() const {
+    return "Didn't find your city(" + city_ + "). Maybe try again? m?";
 }

@@ -37,6 +37,16 @@ namespace Errors {
         std::string what() const override;
     };
     struct ErrorRequestBadStatus : public Error {
+        ErrorRequestBadStatus(long status_code = 0) : status_code_(status_code) {}
         std::string what() const override;
+        long status_code_;
+    };
+    struct ErrorApiCode : public Error {
+        std::string what() const override;
+    };
+    struct ErrorApiCityNotFound : public Error {
+        ErrorApiCityNotFound(const std::string& city) : city_(city) {}
+        std::string what() const override;
+        std::string city_;
     };
 }

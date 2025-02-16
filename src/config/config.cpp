@@ -36,6 +36,14 @@ Config::Config(const std::string& date) : date_(date) {
     to_ = config_json["to"];
 }
 
+std::map<std::string, std::string> Config::GetParameters() const {
+    return {
+        {"apikey", api_key_},
+        {"from", from_},
+        {"to", to_},
+    };
+}
+
 void Config::CreateConfigFile() {
     std::fstream config_file(config_name_, config_file.out);
     

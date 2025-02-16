@@ -16,6 +16,7 @@ using json = nlohmann::json;
 class Config {
 public:
     Config(const std::string& date);
+    std::map<std::string, std::string> GetParameters() const;
 private:
     const std::string config_name_ = "wayhome-config.json";
     std::string api_key_;
