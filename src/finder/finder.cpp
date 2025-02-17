@@ -67,6 +67,7 @@ const std::string& Cache::Request(const std::string& from_code, const std::strin
             {"transfers", "true"}
         }
     );
+    request_ = request.text;
 
     if (request.status_code != 200) {
         throw Errors::ErrorRequestBadStatus(request.status_code);
@@ -79,8 +80,8 @@ const std::string& Cache::Request(const std::string& from_code, const std::strin
     }
 
     request_cache.open(cached_request_filename_, std::ios::out);
-    request_cache << request.text;
-
+    request_cache << request_;
+    request_cache.close();
     return request_;
 }
 
@@ -115,7 +116,9 @@ const std::list<std::string>& Finder::Find() {
     try { request_raw = cache_.Request(from_code_, to_code_); }
     catch (...) { throw; }
 
-    json request = json::parse(request_raw);
+    json request;
+    try { request = json::parse(request_raw); }
+    catch (...) { throw; }
     
     if (request["pagination"]["total"] == 0) return itineraries;
 
