@@ -119,6 +119,21 @@ const std::list<std::string>& Finder::Find() {
     
     if (request["pagination"]["total"] == 0) return itineraries;
 
+    auto get = [](json::const_iterator iter, json::const_iterator end, std::string param = "") -> std::string {
+        if (iter == end) { return "_x_"; }
+        if (param.empty()) {
+            if (iter->is_string()) { return iter->get<std::string>(); }
+            else if (iter->is_number()) { return std::to_string(iter->get<int>()); }
+            else { return "?"; }
+        } else {
+            if (auto inner_iter = iter->find(param); inner_iter != iter->end()) {
+                if (inner_iter->is_string()) { return inner_iter->get<std::string>(); }
+                else if (inner_iter->is_number()) { return std::to_string(inner_iter->get<int>()); }
+                else { return "?"; }
+            } else { return "_x_"; }
+        }
+    };
+
     for (const auto& segment : request["segments"]) {
         std::stringstream way;
         bool has_transfers = true;
@@ -126,21 +141,6 @@ const std::list<std::string>& Finder::Find() {
             Warnings::ErrorIllJsonAnswer();
             continue;
         } else { has_transfers = *iter; }
-
-        auto get = [&](json::const_iterator iter, std::string param = "") -> std::string {
-            if (iter == segment.end()) { return "_x_"; }
-            if (param.empty()) {
-                if (iter->is_string()) { return iter->get<std::string>(); }
-                else if (iter->is_number()) { return std::to_string(iter->get<int>()); }
-                else { return "?"; }
-            } else {
-                if (auto inner_iter = iter->find(param); inner_iter != iter->end()) {
-                    if (inner_iter->is_string()) { return inner_iter->get<std::string>(); }
-                    else if (inner_iter->is_number()) { return std::to_string(inner_iter->get<int>()); }
-                    else { return "?"; }
-                } else { return "_x_"; }
-            }
-        };
 
         if (!has_transfers) {
             const std::map<std::string, json::const_iterator> params {
@@ -151,50 +151,54 @@ const std::list<std::string>& Finder::Find() {
                 {"thread", segment.find("thread")},
                 {"duration", segment.find("duration")}
             };
-            way << "Route " << get(params.at("from"), "title") << " (" << get(params.at("from"), "station_type_name") << ") >> "
-                            << get(params.at("to"), "title") << " (" << get(params.at("to"), "station_type_name") << ") "
+            way << "Route " << get(params.at("from"), segment.end(), "title") << " (" << get(params.at("from"), segment.end(), "station_type_name") << ") >> "
+                            << get(params.at("to"), segment.end(), "title") << " (" << get(params.at("to"), segment.end(), "station_type_name") << ") "
                             << "[without transfers]" << '\n';
-            way << "\t- " << get(params.at("departure")) << " -> " << get(params.at("arrival")) << '\n';
-            way << "\t  " << get(params.at("thread"), "title") << " :: by " << get(params.at("thread"), "transport_type") << "  ~" << get(params.at("duration")) << " сек.";
+            way << "\t- " << get(params.at("departure"), segment.end()) << " -> " << get(params.at("arrival"), segment.end()) << '\n';
+            way << "\t  " << get(params.at("thread"), segment.end(), "title") << " :: by " << get(params.at("thread"), segment.end(), "transport_type")
+                          << "  ~" << get(params.at("duration"), segment.end()) << " сек.";
         }
         else {
             const std::map<std::string, json::const_iterator> params {
-                {"departure_from", segment.find("departure_from")},  // text
-                {"arrival_to", segment.find("arrival_to")},  // text
-                {"departure", segment.find("departure")},  // time
-                {"arrival", segment.find("arrival")},  // time
-                {"details", segment.find("details")},
-                {"duration", segment.find("duration")},
-                {"transfers", segment.find("transfers")}
+                {"departure_from", segment.find("departure_from")},  // title from
+                {"arrival_to", segment.find("arrival_to")},  // title to
+                {"departure", segment.find("departure")},  // time from
+                {"arrival", segment.find("arrival")},  // time to
+                {"details", segment.find("details")},  // contains all subway
+                {"duration", segment.find("duration")},  // time spend
+                {"transfers", segment.find("transfers")}  // transfers
             };
-            way << "Route " << get(params.at("departure_from"), "title") << " (" << get(params.at("departure_from"), "station_type_name") << ") >> "
-                            << get(params.at("arrival_to"), "title") << " (" << get(params.at("arrival_to"), "station_type_name") << ") "
-                            << "[with transfers (" << (params.at("transfers") != segment.end() ? std::to_string(params.at("transfers")->size()) : "?") << ")]" << '\n';
+            way << "Route " << get(params.at("departure_from"), segment.end(), "title") << " (" << get(params.at("departure_from"), segment.end(), "station_type_name") << ") >> "
+                            << get(params.at("arrival_to"), segment.end(), "title") << " (" << get(params.at("arrival_to"), segment.end(), "station_type_name") << ") "
+                            << "[with transfers (" << (params.at("transfers") != segment.end() ? std::to_string(params.at("transfers")->size()) : "?") << ")]";
             if (params.at("details") == segment.end()) {
-                way << "\t- Bad API results.";
+                way << "\n\t- Bad API results.";
                 continue;
             }
             for (const auto& part : *params.at("details")) {
-                if (const auto is_transfer = part.find("is_transfer"); is_transfer != part.end() && *is_transfer) {  // пересадка
-                    const auto transfer_from = part.find("transfer_fom");
+                way << '\n';
+                if (const auto is_transfer = part.find("is_transfer"); is_transfer != part.end() && *is_transfer) {
+                    const auto transfer_from = part.find("transfer_from");
                     const auto transfer_to = part.find("transfer_to");
                     if (transfer_from == part.end() || transfer_to == part.end()) {
                         way << "\t- Bad API results.";
                         continue;
                     }
-                    way << "\t- " << get(transfer_from, "title") << " -> " << get(transfer_to, "title") << "  ~" << get(part.find("duration")) << " сек." << '\n';
-                } else {  // действ. движение
+                    way << "\t- " << get(transfer_from, part.end(), "title") << " -> " << get(transfer_to, part.end(), "title")
+                        << "  ~" << get(part.find("duration"), part.end()) << " сек.";
+                } else {
                     const auto thread = part.find("thread");
                     if (thread == part.end()) {
                         way << "\t- Bad API results.";
                         continue;
                     }
-                    // way << "\t- " << get(part.find("departure")) << " -> " << get(part.find("arrival")) << '\n';
-                    // way << "\t  " << get(thread, "title") << " :: by " << get(thread, "transport_type") << "  ~" << get(part.find("duration")) << " сек.";
+                    way << "\t- " << get(part.find("departure"), part.end()) << " -> " << get(part.find("arrival"), part.end()) << '\n';
+                    way << "\t  " << get(thread, part.end(), "title") << " :: by " << get(thread, part.end(), "transport_type")
+                        << "  ~" << get(part.find("duration"), part.end()) << " сек.";
                 }
             }
         }
-
+        way << std::endl;
         itineraries.push_back(way.str());
     }
 
