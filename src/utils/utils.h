@@ -18,6 +18,7 @@ namespace Warnings {
     void ErrorBadConfig();
     void ErrorFewArgs();
     void ErrorWhileFindRoutes();
+    void ErrorIllJsonAnswer();
 }
 
 namespace Errors {

@@ -33,6 +33,9 @@ void Warnings::ErrorFewArgs() {
 void Warnings::ErrorWhileFindRoutes() {
     std::cerr << "An error happened when i try to found routes. To be honest, it's the worst and simplest error that you can call.\n";
 }
+void Warnings::ErrorIllJsonAnswer() {
+    std::cerr << "A route was skipped due to ill formating.\n";
+}
 
 std::string Errors::CantOpenFile::what() const {
     return "Can't open the file( or can, but don't want.";
