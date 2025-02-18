@@ -159,7 +159,7 @@ const std::list<std::string>& Finder::Find() {
                             << "[without transfers]" << '\n';
             way << "\t- " << GetPrettyDate(get(params.at("departure"), segment.end())) << " -> " << GetPrettyDate(get(params.at("arrival"), segment.end())) << '\n';
             way << "\t  " << get(params.at("thread"), segment.end(), "title") << " :: by " << get(params.at("thread"), segment.end(), "transport_type")
-                          << "  ~" << get(params.at("duration"), segment.end()) << " сек.";
+                          << "  ~" << GetPrettyTime(get(params.at("duration"), segment.end()));
         }
         else {
             const std::map<std::string, json::const_iterator> params {
@@ -171,6 +171,9 @@ const std::list<std::string>& Finder::Find() {
                 {"duration", segment.find("duration")},  // time spend
                 {"transfers", segment.find("transfers")}  // transfers
             };
+
+            if (params.at("transfers") != segment.end() && params.at("transfers")->size() > 1) { continue; }
+
             way << "Route " << get(params.at("departure_from"), segment.end(), "title") << " (" << get(params.at("departure_from"), segment.end(), "station_type_name") << ") >> "
                             << get(params.at("arrival_to"), segment.end(), "title") << " (" << get(params.at("arrival_to"), segment.end(), "station_type_name") << ") "
                             << "[with transfers (" << (params.at("transfers") != segment.end() ? std::to_string(params.at("transfers")->size()) : "?") << ")]";
@@ -188,7 +191,7 @@ const std::list<std::string>& Finder::Find() {
                         continue;
                     }
                     way << "\t- " << get(transfer_from, part.end(), "title") << " -> " << get(transfer_to, part.end(), "title")
-                        << "  ~" << get(part.find("duration"), part.end()) << " сек.";
+                        << "  ~" << GetPrettyTime(get(part.find("duration"), part.end()));
                 } else {
                     const auto thread = part.find("thread");
                     if (thread == part.end()) {
@@ -197,7 +200,7 @@ const std::list<std::string>& Finder::Find() {
                     }
                     way << "\t- " << GetPrettyDate(get(part.find("departure"), part.end())) << " -> " << GetPrettyDate(get(part.find("arrival"), part.end())) << '\n';
                     way << "\t  " << get(thread, part.end(), "title") << " :: by " << get(thread, part.end(), "transport_type")
-                        << "  ~" << get(part.find("duration"), part.end()) << " сек.";
+                        << "  ~" << GetPrettyTime(get(part.find("duration"), part.end()));
                 }
             }
         }
@@ -210,6 +213,9 @@ const std::list<std::string>& Finder::Find() {
 }
 
 std::string Finder::GetPrettyDate(std::string_view date) {
+    if (date == "_x_") { return "_x_"; }
+    if (date == "?") { return "?"; }
+
     std::stringstream formatted;
     std::string_view month(date.substr(5, 2));
     std::string_view day(date.substr(8, 2));
@@ -233,5 +239,22 @@ std::string Finder::GetPrettyDate(std::string_view date) {
     };
 
     formatted << hour << ":" << minutes << ", " << day << " " << months.at(std::string(month)) << " [" << time_zone << "]";
+    return formatted.str();
+}
+
+std::string Finder::GetPrettyTime(std::string_view time_) {
+    if (time_ == "_x_") { return "_x_"; }
+    if (time_ == "?") { return "?"; }
+
+    int time = std::stoi(std::string(time_));
+    int hours = time / 3'600;
+    int minutes = time / 60 % 60;
+    int seconds = time % 60;
+
+    std::stringstream formatted;
+    if (hours > 0) { formatted << hours << "h "; }
+    if (minutes > 0) { formatted << minutes << "m "; }
+    if (seconds > 0) { formatted << seconds << "s "; }
+
     return formatted.str();
 }

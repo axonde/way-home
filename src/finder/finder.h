@@ -50,4 +50,5 @@ private:
     std::list<std::string> itineraries;
 
     std::string GetPrettyDate(std::string_view date);
+    std::string GetPrettyTime(std::string_view time_);
 };
