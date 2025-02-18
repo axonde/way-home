@@ -12,33 +12,28 @@ int main(int argc, char** argv) {
     }
 
     std::unique_ptr<Config> config;
-    try {
-        config = std::make_unique<Config>(argv[1]);
-    } catch (const Errors::Error& e) {
+    try { config = std::make_unique<Config>(argv[1]); }
+    catch (const Errors::Error& e) {
         std::cerr << e.what() << '\n';
+        return 1;
+    } catch (...) {
+        Warnings::ErrorAbnormal();
         return 1;
     }
 
     Finder finder(config.get());
-    if (!finder.InitializeData()) {
-        return 1;
-    }
-
-    if (!finder.SetYandexCodes()) {
-        return 1;
-    }
+    if (!finder.InitializeData()) { return 1; }
+    if (!finder.SetYandexCodes()) { return 1; }
 
     const std::list<std::string>* itineraries;
-    try {
-        itineraries = &finder.Find();
-    } catch (const Errors::Error& e) {
+    try { itineraries = &finder.Find(); }
+    catch (const Errors::Error& e) {
         std::cerr << e.what() << '\n';
         return 1;
-    } 
-    // catch (...) {
-    //     Warnings::ErrorWhileFindRoutes();
-    //     return 1;
-    // }
+    } catch (...) {
+        Warnings::ErrorWhileFindRoutes();
+        return 1;
+    }
 
     if (!itineraries || itineraries->empty()) {
         Warnings::HintNotFoundWays();

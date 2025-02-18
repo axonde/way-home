@@ -11,26 +11,18 @@ Config::Config(const std::string& date) : date_(date) {
             Warnings::HintFirstCreateConfigFile();
             CreateConfigFile();
         } else {
-            if (!Warnings::ProceedAlreadyCreatedConfig())
-                CreateConfigFile();
+            if (!Warnings::ProceedAlreadyCreatedConfig()) { CreateConfigFile(); }
         }
-    } catch (...) {
-        throw;
-    }
+    } catch (...) { throw; }
 
     std::stringstream buffer;
     buffer << config_file.rdbuf();
 
     json config_json;
-    try {
-        config_json = json::parse(buffer.str());
-    } catch (...) {
-        throw Errors::ErrorParseJson();
-    }
+    try { config_json = json::parse(buffer.str()); }
+    catch (...) { throw Errors::ErrorParseJson(); }
     
-    if (!CheckJson(config_json)) {
-        throw Errors::BadJson();
-    }
+    if (!CheckJson(config_json)) { throw Errors::BadJson(); }
     api_key_ = config_json["api"];
     from_ = config_json["from"];
     to_ = config_json["to"];

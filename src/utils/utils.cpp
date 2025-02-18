@@ -3,9 +3,9 @@
 bool Warnings::ProceedAlreadyCreatedConfig() {
     std::cout << "Do you want to proceed with the already created config?\n";
     std::cout << "Type the answer (be careful: other answer except `yes` will be consider like `no`) (yes/no): ";
-    char answer[4];
-    std::cin >> answer;
-    return strcmp(answer, "yes") == 0;
+    std::string answer;
+    std::getline(std::cin, answer);
+    return answer == "yes";
 }
 
 void Warnings::HintCorrectnessCityNaming() {
