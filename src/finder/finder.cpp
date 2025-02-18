@@ -157,7 +157,7 @@ const std::list<std::string>& Finder::Find() {
             way << "Route " << get(params.at("from"), segment.end(), "title") << " (" << get(params.at("from"), segment.end(), "station_type_name") << ") >> "
                             << get(params.at("to"), segment.end(), "title") << " (" << get(params.at("to"), segment.end(), "station_type_name") << ") "
                             << "[without transfers]" << '\n';
-            way << "\t- " << get(params.at("departure"), segment.end()) << " -> " << get(params.at("arrival"), segment.end()) << '\n';
+            way << "\t- " << GetPrettyDate(get(params.at("departure"), segment.end())) << " -> " << GetPrettyDate(get(params.at("arrival"), segment.end())) << '\n';
             way << "\t  " << get(params.at("thread"), segment.end(), "title") << " :: by " << get(params.at("thread"), segment.end(), "transport_type")
                           << "  ~" << get(params.at("duration"), segment.end()) << " сек.";
         }
@@ -195,7 +195,7 @@ const std::list<std::string>& Finder::Find() {
                         way << "\t- Bad API results.";
                         continue;
                     }
-                    way << "\t- " << get(part.find("departure"), part.end()) << " -> " << get(part.find("arrival"), part.end()) << '\n';
+                    way << "\t- " << GetPrettyDate(get(part.find("departure"), part.end())) << " -> " << GetPrettyDate(get(part.find("arrival"), part.end())) << '\n';
                     way << "\t  " << get(thread, part.end(), "title") << " :: by " << get(thread, part.end(), "transport_type")
                         << "  ~" << get(part.find("duration"), part.end()) << " сек.";
                 }
@@ -207,4 +207,31 @@ const std::list<std::string>& Finder::Find() {
 
 
     return itineraries;
+}
+
+std::string Finder::GetPrettyDate(std::string_view date) {
+    std::stringstream formatted;
+    std::string_view month(date.substr(5, 2));
+    std::string_view day(date.substr(8, 2));
+    std::string_view hour(date.substr(11, 2));
+    std::string_view minutes(date.substr(14, 2));
+    std::string_view time_zone(date.substr(19, 6));
+
+    const std::map<std::string, std::string> months {
+        {"01", "January"},
+        {"02", "February"},
+        {"03", "March"},
+        {"04", "April"},
+        {"05", "May"},
+        {"06", "June"},
+        {"07", "July"},
+        {"08", "August"},
+        {"09", "September"},
+        {"10", "October"},
+        {"11", "November"},
+        {"12", "December"},
+    };
+
+    formatted << hour << ":" << minutes << ", " << day << " " << months.at(std::string(month)) << " [" << time_zone << "]";
+    return formatted.str();
 }

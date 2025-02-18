@@ -48,4 +48,6 @@ private:
     std::string from_code_;
     std::string to_code_;
     std::list<std::string> itineraries;
+
+    std::string GetPrettyDate(std::string_view date);
 };
