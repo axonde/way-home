@@ -39,3 +39,7 @@
 1. 25.02.2025 23:59 - 0.8
 2. 04.03.2025 23:59 - 0.65
 3. 11.03.2025 23:59 - 0.5
+
+
+
+> message for github pull request. (activate git diff)
